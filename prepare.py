@@ -63,7 +63,7 @@ def encode_col(train, test, col):
     new_train = pd.DataFrame(new_train_arr, columns=labels)
     new_test = pd.DataFrame(new_test_arr, columns=labels)
     
-    return pd.concat([train, new_train], axis=1), pd.concat([train, new_test], axis=1)
+    return pd.concat([train, new_train], axis=1), pd.concat([test, new_test], axis=1)
 
 
 def flatten_add_features(sample):
@@ -74,10 +74,10 @@ def flatten_add_features(sample):
     reduced_sample = sample.iloc[-1].copy()
     # sum column counts
     reduced_sample.update(sample[sum_cols].sum())
-    # correct events against incorrect events
-    reduced_sample['total_event_count'] = sample['event_count'].sum()
-    reduced_sample['avg_event_count'] = sample['event_count'].mean()
-
+    
+    # needs to be fixed, it's not a simple sum, it's a sum of the last event on each game_session
+    #reduced_sample['total_event_count'] = sample['event_count'].sum()
+    #reduced_sample['avg_event_count'] = sample['event_count'].mean()
     # needs to be fixed, it's not a simple sum, it's a sum of the last event on each game_session
     '''reduced_sample['total_game_time'] = sample['game_time'].sum()
 
@@ -88,6 +88,8 @@ def flatten_add_features(sample):
         reduced_sample['avg_game_time'] = 0
     else:
         reduced_sample['avg_game_time'] = reduced_sample['total_game_time'] / num_games'''
+
+    reduced_sample['nunique_titles'] = sample['title'].nunique()
 
     # process event codes
     reduced_sample['avg_review_incorrect_feedback'] = get_avg_time_between_events(sample, 3120)
